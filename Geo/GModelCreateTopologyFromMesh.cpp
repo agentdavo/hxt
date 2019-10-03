@@ -349,8 +349,8 @@ protected:
 
 public:
   const MElement *getParent() const { return parent; }
-  const int getIndex() const { return edgeIndex; }
-  const int getType() const { return TYPE_LIN; }
+  int getIndex() const { return edgeIndex; }
+  int getType() const { return TYPE_LIN; }
 
   inline bool operator==(const topoEdge &f) const { return ids == f.ids; }
   inline bool operator<(const topoEdge &f) const { return ids < f.ids; }
@@ -519,9 +519,8 @@ public:
   const std::set<int> &getVertices() const { return vtcs; }
 
   const MElement *getParent() const { return parent; }
-  const int getIndex() const { return faceIndex; }
-  const int getType() const
-  {
+  int getIndex() const { return faceIndex; }
+  int getType() const {
     switch(vtcs.size()) {
     case 3: return TYPE_TRI; break;
     case 4: return TYPE_QUA; break;

@@ -967,7 +967,7 @@ public:
     while(i < f.size()) {
       std::size_t j = 0;
       if(f[i] == 'F') {
-        std::string id("");
+        std::string id;
         while(i + 1 + j < f.size() && f[i + 1 + j] >= '0' &&
               f[i + 1 + j] <= '9') {
           id += f[i + 1 + j];
@@ -1041,7 +1041,7 @@ public:
     while(i < f.size()) {
       std::size_t j = 0;
       if(f[i] == 'F') {
-        std::string id("");
+        std::string id;
         while(i + 1 + j < f.size() && f[i + 1 + j] >= '0' &&
               f[i + 1 + j] <= '9') {
           id += f[i + 1 + j];

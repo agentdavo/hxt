@@ -3466,9 +3466,8 @@ bool OCC_Internals::getMatrixOfInertia(int dim, int tag, std::vector<double> &ma
   return true;
 }
 
-bool const sortByInvDim(std::pair<int, int> const &lhs,
-                        std::pair<int, int> const &rhs)
-{
+bool sortByInvDim(std::pair<int, int> const &lhs,
+                  std::pair<int, int> const &rhs) {
   return lhs.first > rhs.first;
 }
 

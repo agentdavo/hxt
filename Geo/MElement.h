@@ -319,14 +319,13 @@ public:
   // get the function space for the element
   virtual const nodalBasis *getFunctionSpace(int order = -1,
                                              bool serendip = false) const;
-  virtual const FuncSpaceData getFuncSpaceData(int order = -1,
-                                               bool serendip = false) const;
+  virtual FuncSpaceData getFuncSpaceData(int order = -1,
+                                         bool serendip = false) const;
 
   // get the function space for the jacobian of the element
   virtual const JacobianBasis *
   getJacobianFuncSpace(int orderElement = -1) const;
-  virtual const FuncSpaceData
-  getJacobianFuncSpaceData(int orderElement = -1) const;
+  virtual FuncSpaceData getJacobianFuncSpaceData(int orderElement = -1) const;
 
   // return parametric coordinates (u,v,w) of a vertex
   virtual void getNode(int num, double &u, double &v, double &w) const;

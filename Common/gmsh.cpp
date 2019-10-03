@@ -1986,7 +1986,7 @@ GMSH_API void gmsh::model::mesh::getBasisFunctions(
   if(!_isInitialized()) { throw - 1; }
   numComponents = 0;
   basisFunctions.clear();
-  std::string fsName = "";
+  std::string fsName;
   int fsOrder = 0;
   if(!_getFunctionSpaceInfo(functionSpaceType, fsName, fsOrder,
                             numComponents)) {
@@ -2039,7 +2039,7 @@ GMSH_API void gmsh::model::mesh::getBasisFunctionsForElements(
 {
   basisFunctions.clear();
   int basisOrder = 0;
-  std::string fsName = "";
+  std::string fsName;
   if(!_getHierarchicalFunctionSpaceInfo(functionSpaceType, fsName, basisOrder,
                                         numComponents)) {
     Msg::Error("Unknown function space type '%s'", functionSpaceType.c_str());
@@ -2288,7 +2288,7 @@ GMSH_API void gmsh::model::mesh::getKeysForElements(
   keys.clear();
   int order = 0;
   int numComponents = 0;
-  std::string fsName = "";
+  std::string fsName;
   if(!_getHierarchicalFunctionSpaceInfo(functionSpaceType, fsName, order,
                                         numComponents)) {
     Msg::Error("Unknown function space type '%s'", functionSpaceType.c_str());
@@ -2671,7 +2671,7 @@ gmsh::model::mesh::getIntegrationPoints(const int elementType,
   if(!_isInitialized()) { throw - 1; }
   integrationPoints.clear();
   integrationWeigths.clear();
-  std::string intName = "";
+  std::string intName;
   int intOrder = 0;
   if(!_getIntegrationInfo(integrationType, intName, intOrder)) {
     Msg::Error("Unknown quadrature type '%s'", integrationType.c_str());

@@ -96,8 +96,7 @@ namespace {
   // Gambit numbers its faces slightly differently
   static const unsigned GAMBIT_FACE_MAP[4] = {1, 2, 4, 3};
 
-  unsigned const gambitBoundaryCode(std::string name)
-  {
+  unsigned gambitBoundaryCode(std::string name) {
     std::transform(name.begin(), name.end(), name.begin(), ::toupper);
     hashMap<std::string, unsigned>::_::const_iterator code =
       boundaryCodeMap.find(name);
@@ -107,13 +106,11 @@ namespace {
   typedef std::pair<unsigned, unsigned> TetFacePair;
   typedef hashMap<unsigned, std::vector<TetFacePair> >::_ IDTetFaceMap;
 
-  bool const sortBCs(TetFacePair const &lhs, TetFacePair const &rhs)
-  {
+  bool sortBCs(TetFacePair const &lhs, TetFacePair const &rhs) {
     return lhs.first < rhs.first;
   }
 
-  IDTetFaceMap const gatherBC(GModel *gm)
-  {
+  IDTetFaceMap gatherBC(GModel *gm) {
     // create association map for vertices and faces
     hashMap<unsigned, std::vector<unsigned> >::_ vertmap;
     for(GModel::fiter it = gm->firstFace(); it != gm->lastFace(); ++it) {

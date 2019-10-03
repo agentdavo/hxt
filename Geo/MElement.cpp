@@ -715,8 +715,7 @@ const nodalBasis *MElement::getFunctionSpace(int order, bool serendip) const
   return type ? BasisFactory::getNodalBasis(type) : NULL;
 }
 
-const FuncSpaceData MElement::getFuncSpaceData(int order, bool serendip) const
-{
+FuncSpaceData MElement::getFuncSpaceData(int order, bool serendip) const {
   if(order == -1) return FuncSpaceData(this);
   return FuncSpaceData(this, order, serendip);
 }
@@ -728,8 +727,7 @@ const JacobianBasis *MElement::getJacobianFuncSpace(int orderElement) const
   return tag ? BasisFactory::getJacobianBasis(tag) : NULL;
 }
 
-const FuncSpaceData MElement::getJacobianFuncSpaceData(int orderElement) const
-{
+FuncSpaceData MElement::getJacobianFuncSpaceData(int orderElement) const {
   if(orderElement == -1) orderElement = getPolynomialOrder();
   int orderJac = JacobianBasis::jacobianOrder(this->getType(), orderElement);
   return FuncSpaceData(this, orderJac, false);

@@ -946,7 +946,7 @@ gmsh::model::mesh::getLastNodeError(std::vector<std::size_t> &nodeTags)
 
 GMSH_API void gmsh::model::mesh::clear()
 {
-  if(!_isInitialized()) { throw -1; }
+  if(!_isInitialized()) { throw - 1; }
   GModel::current()->deleteMesh();
 }
 
@@ -1061,14 +1061,12 @@ GMSH_API void gmsh::model::mesh::getNodes(std::vector<std::size_t> &nodeTags,
   }
 }
 
-GMSH_API void gmsh::model::mesh::getNodesByElementType(const int elementType,
-                                                       std::vector<std::size_t> & nodeTags,
-                                                       std::vector<double> & coord,
-                                                       std::vector<double> & parametricCoord,
-                                                       const int tag,
-                                                       const bool returnParametricCoord)
+GMSH_API void gmsh::model::mesh::getNodesByElementType(
+  const int elementType, std::vector<std::size_t> &nodeTags,
+  std::vector<double> &coord, std::vector<double> &parametricCoord,
+  const int tag, const bool returnParametricCoord)
 {
-  if(!_isInitialized()) { throw -1; }
+  if(!_isInitialized()) { throw - 1; }
   nodeTags.clear();
   coord.clear();
   parametricCoord.clear();
@@ -1096,13 +1094,12 @@ GMSH_API void gmsh::model::mesh::getNodesByElementType(const int elementType,
 
   nodeTags.reserve(numNodes);
   coord.reserve(numNodes * 3);
-  if(returnParametricCoord) {
-    parametricCoord.reserve(numNodes * 3);
-  }
+  if(returnParametricCoord) { parametricCoord.reserve(numNodes * 3); }
 
   for(std::size_t i = 0; i < entities.size(); i++) {
     GEntity *ge = entities[i];
-    for(std::size_t j = 0; j < entities[i]->getNumMeshElementsByType(familyType); j++) {
+    for(std::size_t j = 0;
+        j < entities[i]->getNumMeshElementsByType(familyType); j++) {
       MElement *e = ge->getMeshElementByType(familyType, j);
       for(std::size_t k = 0; k < e->getNumVertices(); ++k) {
         MVertex *v = e->getVertex(k);
@@ -1520,6 +1517,7 @@ GMSH_API int gmsh::model::mesh::getElementType(const std::string &family,
                                                const bool serendip)
 {
   if(!_isInitialized()) { throw - 1; }
+  // clang-format off
   int familyType = (family == "point") ?
                      TYPE_PNT :
                      (family == "line") ?
@@ -1541,6 +1539,7 @@ GMSH_API int gmsh::model::mesh::getElementType(const std::string &family,
                      (family == "polyhedron") ?
                      TYPE_POLYH :
                      (family == "trihedron") ? TYPE_TRIH : -1;
+  // clang-format on
   return ElementType::getType(familyType, order, serendip);
 }
 
@@ -1921,8 +1920,7 @@ GMSH_API void gmsh::model::mesh::getJacobians(
                 double value[1256][3];
                 e->getGradShapeFunctions(integrationPoints[3 * k],
                                          integrationPoints[3 * k + 1],
-                                         integrationPoints[3 * k + 2],
-                                         value);
+                                         integrationPoints[3 * k + 2], value);
                 gsf[k].resize(e->getNumShapeFunctions());
                 for(int l = 0; l < e->getNumShapeFunctions(); l++) {
                   gsf[k][l][0] = value[l][0];
@@ -1941,7 +1939,11 @@ GMSH_API void gmsh::model::mesh::getJacobians(
       }
     }
     else {
-      Msg::Error("The case with 'haveDeterminants = %s', `haveJacobians = %s` and 'havePoints = %s' is not yet implemented.", (haveDeterminants ? "true" : "false"), (haveJacobians ? "true" : "false"), (havePoints ? "true" : "false"));
+      Msg::Error("The case with 'haveDeterminants = %s', `haveJacobians = %s` "
+                 "and 'havePoints = %s' is not yet implemented.",
+                 (haveDeterminants ? "true" : "false"),
+                 (haveJacobians ? "true" : "false"),
+                 (havePoints ? "true" : "false"));
       throw 2;
     }
     // Add other combinaisons if necessary
@@ -3232,23 +3234,23 @@ GMSH_API void gmsh::model::mesh::removeDuplicateNodes()
   CTX::instance()->mesh.changed = ENT_ALL;
 }
 
-GMSH_API void gmsh::model::mesh::classifySurfaces(const double angle,
-                                                  const bool boundary,
-                                                  const bool forReparametrization)
+GMSH_API void
+gmsh::model::mesh::classifySurfaces(const double angle, const bool boundary,
+                                    const bool forReparametrization)
 {
-  if(!_isInitialized()) { throw -1; }
+  if(!_isInitialized()) { throw - 1; }
   GModel::current()->classifySurfaces(angle, boundary, forReparametrization);
 }
 
 GMSH_API void gmsh::model::mesh::createGeometry()
 {
-  if(!_isInitialized()) { throw -1; }
+  if(!_isInitialized()) { throw - 1; }
   GModel::current()->createGeometryOfDiscreteEntities();
 }
 
 GMSH_API void gmsh::model::mesh::createTopology()
 {
-  if(!_isInitialized()) { throw -1; }
+  if(!_isInitialized()) { throw - 1; }
   GModel::current()->createTopologyFromMesh();
 }
 
@@ -3860,9 +3862,10 @@ GMSH_API int gmsh::model::occ::addCircle(const double x, const double y,
   return outTag;
 }
 
-GMSH_API int gmsh::model::occ::addEllipseArc(
-  const int startTag, const int centerTag, const int majorTag, const int endTag,
-  const int tag)
+GMSH_API int gmsh::model::occ::addEllipseArc(const int startTag,
+                                             const int centerTag,
+                                             const int majorTag,
+                                             const int endTag, const int tag)
 {
   if(!_isInitialized()) { throw - 1; }
   _createOcc();
@@ -4015,8 +4018,7 @@ gmsh::model::occ::addSurfaceLoop(const std::vector<int> &surfaceTags,
   if(!_isInitialized()) { throw - 1; }
   _createOcc();
   int outTag = tag;
-  if(!GModel::current()->getOCCInternals()->addSurfaceLoop(outTag,
-                                                           surfaceTags,
+  if(!GModel::current()->getOCCInternals()->addSurfaceLoop(outTag, surfaceTags,
                                                            sewing)) {
     throw 1;
   }
@@ -4387,20 +4389,17 @@ GMSH_API void gmsh::model::occ::removeAllDuplicates()
   GModel::current()->getOCCInternals()->removeAllDuplicates();
 }
 
-GMSH_API void gmsh::model::occ::healShapes(vectorpair &outDimTags,
-                                           const vectorpair &inDimTags,
-                                           const double tolerance,
-                                           const bool fixDegenerated,
-                                           const bool fixSmallEdges,
-                                           const bool fixSmallFaces,
-                                           const bool sewFaces)
+GMSH_API void gmsh::model::occ::healShapes(
+  vectorpair &outDimTags, const vectorpair &inDimTags, const double tolerance,
+  const bool fixDegenerated, const bool fixSmallEdges, const bool fixSmallFaces,
+  const bool sewFaces)
 {
-  if(!_isInitialized()) { throw -1; }
+  if(!_isInitialized()) { throw - 1; }
   _createOcc();
   outDimTags.clear();
-  if(!GModel::current()->getOCCInternals()->healShapes
-     (inDimTags, outDimTags, tolerance, fixDegenerated, fixSmallEdges,
-      fixSmallFaces, sewFaces)) {
+  if(!GModel::current()->getOCCInternals()->healShapes(
+       inDimTags, outDimTags, tolerance, fixDegenerated, fixSmallEdges,
+       fixSmallFaces, sewFaces)) {
     throw 1;
   }
 }

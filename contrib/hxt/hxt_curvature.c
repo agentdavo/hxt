@@ -142,8 +142,9 @@ void saveNodalField (HXTMesh *mesh, double *v, int ncomp, const char *fn){
 
 HXTStatus hxtCurvatureRusinkiewicz (HXTMesh *mesh, double **nodalCurvatures, double **crossField, HXTEdges* edges, int debug)
 {
+  printf("IN CURVATURE\n");
   clock_t T1 = clock();
-  
+
   uint64_t nTriangles  = mesh->triangles.num;
   //  uint64_t nEdgesBdry = mesh->lines.num;
   uint64_t nVertices   = mesh->vertices.num;
@@ -162,8 +163,8 @@ HXTStatus hxtCurvatureRusinkiewicz (HXTMesh *mesh, double **nodalCurvatures, dou
   double n[3],surf;
   
   for (uint64_t i = 0; i<nTriangles; i++){
-    node2tri[counter++] = mesh->triangles.node[3*i+0];
-    node2tri[counter++] = i;
+    node2tri[counter++] = mesh->triangles.node[3*i+0];// first node of triangle i
+    node2tri[counter++] = i;// index of current triangle
     node2tri[counter++] = mesh->triangles.node[3*i+1];
     node2tri[counter++] = i;
     node2tri[counter++] = mesh->triangles.node[3*i+2];
@@ -184,7 +185,9 @@ HXTStatus hxtCurvatureRusinkiewicz (HXTMesh *mesh, double **nodalCurvatures, dou
   if (debug) saveNodalField (mesh,nodeNormals, 3, "normals.pos");
   
   qsort(node2tri,3*nTriangles,2*sizeof(uint64_t),node2trianglescmp);
-
+  for (uint64_t i = 0; i<nTriangles; i++){
+    
+  }
 
   // --> COMPUTE THE SECOND FUNDAMENTAL TENSOR ON EACH TRIANGLE USING LEAST SQUARES  
 
@@ -259,40 +262,17 @@ HXTStatus hxtCurvatureRusinkiewicz (HXTMesh *mesh, double **nodalCurvatures, dou
     CURV[4*i+1] = CURV[4*i+2] = 0.5* (CURV[4*i+1] + CURV[4*i+2]);
   }
 
-  // Get vertex curvatures by averaging triangle curvatures
-  uint64_t currentVertex = nVertices + 1;
+  // Getting vertex curvatures by averaging triangle curvatures
+  uint64_t currentVertex = node2tri[0];
   uint64_t count = 0;
   double uP[3],vP[3], A, B, D;
-  for (uint64_t i = 0; i<6*nTriangles; i+=2){
-    uint64_t iVertex   = node2tri[i];
-    uint64_t iTriangle = node2tri[i+1];
-    //    printf("%d %d %d %d\n",iVertex,iTriangle,nVertices,currentVertex);
-    if (currentVertex != iVertex){
-      // compute the real stuff
-      if (currentVertex != nVertices + 1){
-        //        printf("%g %g %g %d \n",A,B,D,count);
-        A /= (double) count;
-        B /= (double) count;
-        D /= (double) count;
-        double lambda1, lambda2, v1x, v1y, v2x, v2y;
-        solveEig(A, B, B, D, 
-                  & lambda1, & v1x, &v1y, 
-                  & lambda2, & v2x, & v2y );
-        (*nodalCurvatures) [6 * currentVertex + 0] = fabs(lambda1) * (v1x * uP[0] + v1y * vP[0]);      
-        (*nodalCurvatures) [6 * currentVertex + 1] = fabs(lambda1) * (v1x * uP[1] + v1y * vP[1]);      
-        (*nodalCurvatures) [6 * currentVertex + 2] = fabs(lambda1) * (v1x * uP[2] + v1y * vP[2]);      
-        (*nodalCurvatures) [6 * currentVertex + 3] = fabs(lambda2) * (v2x * uP[0] + v2y * vP[0]);      
-        (*nodalCurvatures) [6 * currentVertex + 4] = fabs(lambda2) * (v2x * uP[1] + v2y * vP[1]);      
-        (*nodalCurvatures) [6 * currentVertex + 5] = fabs(lambda2) * (v2x * uP[2] + v2y * vP[2]);            
-      }
-      
-      count = 0;
-      A = 0.0;
-      B = 0.0;
-      D = 0.0;
-      computeLocalFrame (&nodeNormals[3*iVertex], uP, vP);
-      currentVertex = iVertex;
-    }
+  uint64_t iVertex   = node2tri[2*0+0];
+  uint64_t iTriangle = node2tri[2*0+1];
+  for (uint64_t i = 1; i<3*nTriangles; i++){    
+    
+    printf("%lu: %lu (%lu) |-> %lu\n",i,node2tri[2*i+0],currentVertex,node2tri[2*i+1]);
+
+    // computing each curvature around a vertex
     unitNormal2Triangle ( mesh->vertices.coord + 4*mesh->triangles.node[3*iTriangle+0],
                           mesh->vertices.coord + 4*mesh->triangles.node[3*iTriangle+1],
                           mesh->vertices.coord + 4*mesh->triangles.node[3*iTriangle+2], n, &surf);
@@ -306,15 +286,48 @@ HXTStatus hxtCurvatureRusinkiewicz (HXTMesh *mesh, double **nodalCurvatures, dou
     normalize(UP);
     double VP[3] = {dotprod (vP,uF),dotprod (vP,vF),0};
     normalize(VP);
-    //    printf("C[%d] = %g %g %g %g V= %g %g %g %g %g %g\n",iTriangle,c[0],c[1],c[2],c[3],uF[0],uF[1],uF[2],vF[0],vF[1],vF[2]);
     A += (UP[0]*UP[0]*c[0] + 2*UP[0]*UP[1]*c[1] + UP[1]*UP[1]*c[3]) ;
     D += (VP[0]*VP[0]*c[0] + 2*VP[0]*VP[1]*c[1] + VP[1]*VP[1]*c[3]) ;
     B += (VP[0]*UP[0]*c[0] + (VP[1]*UP[0]+VP[0]*UP[1])*c[1] + VP[1]*UP[1]*c[3]) ;
     count++;
+
+    // turning around a vertex
+    iVertex = node2tri[2*i+0];
+    iTriangle = node2tri[2*i+1];
+    // if all triangles have been explored: computing the corresponding nodal curvature
+    if (currentVertex != iVertex || i+1==3*nTriangles){
+      // compute the real stuff
+      printf("_%lu vs %lu (%lu)\n",currentVertex,iVertex,nVertices+1);
+      //        printf("%g %g %g %d \n",A,B,D,count);
+      A /= (double) count;
+      B /= (double) count;
+      D /= (double) count;
+      double lambda1, lambda2, v1x, v1y, v2x, v2y;
+      solveEig(A, B, B, D, 
+	       & lambda1, & v1x, &v1y, 
+	       & lambda2, & v2x, & v2y );
+      printf("__%lu vs %lu\n",6*currentVertex,6*nVertices);
+      (*nodalCurvatures) [6 * currentVertex + 0] = fabs(lambda1) * (v1x * uP[0] + v1y * vP[0]);      
+      (*nodalCurvatures) [6 * currentVertex + 1] = fabs(lambda1) * (v1x * uP[1] + v1y * vP[1]);      
+      (*nodalCurvatures) [6 * currentVertex + 2] = fabs(lambda1) * (v1x * uP[2] + v1y * vP[2]);      
+      (*nodalCurvatures) [6 * currentVertex + 3] = fabs(lambda2) * (v2x * uP[0] + v2y * vP[0]);      
+      (*nodalCurvatures) [6 * currentVertex + 4] = fabs(lambda2) * (v2x * uP[1] + v2y * vP[1]);      
+      (*nodalCurvatures) [6 * currentVertex + 5] = fabs(lambda2) * (v2x * uP[2] + v2y * vP[2]);            
+      
+      count = 0;
+      A = 0.0;
+      B = 0.0;
+      D = 0.0;
+      computeLocalFrame (&nodeNormals[3*iVertex], uP, vP);
+      currentVertex = iVertex;
+    }// end if currentVertex != uVertex
+
   }
 
-  if (debug)saveNodalField (mesh,*nodalCurvatures,  6, "curvaturesMax.pos");
-  if (debug)saveNodalField (mesh,*nodalCurvatures, -6, "curvaturesMin.pos");
+  //if (debug)
+  saveNodalField (mesh,*nodalCurvatures,  6, "curvaturesMax.pos");
+  //if (debug)
+  saveNodalField (mesh,*nodalCurvatures, -6, "curvaturesMin.pos");
 
   //-----------------------------------------------------------------------------
   //            C R O S S    F I E L D    

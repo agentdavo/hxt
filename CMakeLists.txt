@@ -2109,8 +2109,10 @@ if(NOT DISABLE_GMSH_TESTS)
       foreach(TESTFILE ${TESTFILES})
         get_filename_component(TEST ${TESTFILE} NAME_WE)
         add_test(NAME ${TEST}_py COMMAND ${PYTHON_EXECUTABLE} ${TESTFILE} -nopopup)
-        set_tests_properties(${TEST}_py PROPERTIES ENVIRONMENT
+        set_property(${TEST}_py APPEND PROPERTY ENVIRONMENT
                              "PYTHONPATH=${CMAKE_SOURCE_DIR}/api")
+        set_property(${TEST}_py APPEND PROPERTY ENVIRONMENT
+                             "LD_LIBRARY_PATH=${CMAKE_CURRENT_BINARY_DIR}")
         endforeach()
     endif()
   endif()
